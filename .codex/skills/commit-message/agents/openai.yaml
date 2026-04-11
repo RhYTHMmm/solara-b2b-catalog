@@ -1,0 +1,7 @@
+interface:
+  display_name: "Commit Message"
+  short_description: "根据 git 变更生成 Conventional Commit 提交信息"
+  default_prompt: "Use $commit-message 根据当前 git 变更生成一条合适的 commit message。"
+
+policy:
+  allow_implicit_invocation: true
