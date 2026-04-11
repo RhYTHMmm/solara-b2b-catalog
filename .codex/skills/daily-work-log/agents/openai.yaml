@@ -1,0 +1,7 @@
+interface:
+  display_name: "每日工作日志"
+  short_description: "生成中文当日工作日志，记录完成事项、问题、计划和相关模块"
+  default_prompt: "Use $daily-work-log 根据今天的项目变更生成中文工作日志。"
+
+policy:
+  allow_implicit_invocation: true
