@@ -1,0 +1,22 @@
+---
+import type { Settings } from '../../lib/homeData';
+
+interface Props {
+  stats: Settings['heroStats'];
+}
+
+const { stats } = Astro.props;
+---
+
+{
+  stats?.length ? (
+    <section class="stats-band" aria-label="Company stats">
+      {stats.map((stat) => (
+        <div class="stat">
+          <strong>{stat.value}</strong>
+          <span>{stat.label}</span>
+        </div>
+      ))}
+    </section>
+  ) : null
+}

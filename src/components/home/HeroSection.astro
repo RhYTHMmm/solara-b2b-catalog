@@ -1,0 +1,33 @@
+---
+import type { Settings } from '../../lib/homeData';
+
+interface Props {
+  settings: Settings;
+}
+
+const { settings } = Astro.props;
+---
+
+<section class="hero">
+  <div class="hero-content">
+    <p class="eyebrow">{settings.tagline}</p>
+    <h1>{settings.heroTitle}</h1>
+    <p class="hero-copy">{settings.heroSubtitle}</p>
+    <div class="hero-actions">
+      {
+        settings.primaryCta && (
+          <a class="button primary" href="#contact">
+            {settings.primaryCta}
+          </a>
+        )
+      }
+      {
+        settings.secondaryCta && (
+          <a class="button secondary" href="#products">
+            {settings.secondaryCta}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</section>

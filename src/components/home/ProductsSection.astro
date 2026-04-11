@@ -1,0 +1,74 @@
+---
+import type { Category, Product } from '../../lib/homeData';
+
+interface Props {
+  categories: Category[];
+  products: Product[];
+}
+
+const { categories, products } = Astro.props;
+---
+
+<section class="section intro-section" id="products">
+  <div class="section-heading">
+    <p class="eyebrow">Product Range</p>
+    <h2>Export-ready solar components for repeat B2B orders</h2>
+    <p>
+      Standard SKUs, documented quality control, and packaging details prepared
+      for distributors, EPCs, and OEM buyers.
+    </p>
+  </div>
+
+  <div class="category-grid">
+    {
+      categories.map((category) => (
+        <a class="category-card" href={`/categories/${category.slug}`}>
+          <span>{category.title}</span>
+          <p>{category.summary}</p>
+        </a>
+      ))
+    }
+  </div>
+
+  <div class="product-grid">
+    {
+      products.map((product, index) => (
+        <article class="product-card">
+          {product.imageUrl && (
+            <img
+              src={product.imageUrl}
+              alt={product.imageAlt ?? product.title}
+              loading={index === 0 ? 'eager' : 'lazy'}
+            />
+          )}
+          <div class="product-content">
+            <p class="product-meta">
+              {product.category?.title}
+              {product.sku ? ` / ${product.sku}` : ''}
+            </p>
+            <h3>
+              <a href={`/products/${product.slug}`}>{product.title}</a>
+            </h3>
+            <p>{product.summary}</p>
+            {(product.minOrderQuantity || product.leadTime) && (
+              <dl>
+                {product.minOrderQuantity && (
+                  <div>
+                    <dt>MOQ</dt>
+                    <dd>{product.minOrderQuantity}</dd>
+                  </div>
+                )}
+                {product.leadTime && (
+                  <div>
+                    <dt>Lead time</dt>
+                    <dd>{product.leadTime}</dd>
+                  </div>
+                )}
+              </dl>
+            )}
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>

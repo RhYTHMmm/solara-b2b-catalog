@@ -1,0 +1,49 @@
+---
+import { imageUrl, type Application } from '../../lib/homeData';
+
+interface Props {
+  applications: Application[];
+}
+
+const { applications } = Astro.props;
+---
+
+<section class="section applications-section" id="applications">
+  <div class="section-heading">
+    <p class="eyebrow">Applications</p>
+    <h2>Built around procurement, installation, and after-sales workflows</h2>
+  </div>
+
+  <div class="application-grid">
+    {
+      applications.map((application) => {
+        const applicationImageUrl = imageUrl(application.image);
+
+        return (
+          <article class="application-card">
+            {applicationImageUrl && (
+              <img
+                src={applicationImageUrl}
+                alt={application.image?.alt ?? application.title}
+                loading="lazy"
+              />
+            )}
+            <div>
+              <h3>
+                <a href={`/applications/${application.slug}`}>
+                  {application.title}
+                </a>
+              </h3>
+              <p>{application.summary}</p>
+              <div class="tag-list">
+                {application.industries?.map((industry) => (
+                  <span>{industry}</span>
+                ))}
+              </div>
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+</section>

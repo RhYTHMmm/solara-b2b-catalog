@@ -1,0 +1,50 @@
+---
+import type { Faq, Settings } from '../../lib/homeData';
+
+interface Props {
+  settings: Settings;
+  faqs: Faq[];
+}
+
+const { settings, faqs } = Astro.props;
+---
+
+<section class="section rfq-section" id="contact">
+  <div class="rfq-copy">
+    <p class="eyebrow">RFQ Support</p>
+    <h2>Send your target market, quantity, and certification requirements</h2>
+    <p>
+      The sales team can prepare FOB pricing, datasheets, packing details,
+      available certificates, and suggested shipment schedules.
+    </p>
+    <div class="contact-list">
+      {
+        settings.contactEmail && (
+          <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
+        )
+      }
+      {
+        settings.phone && (
+          <a href={`tel:${settings.phone.replaceAll(' ', '')}`}>
+            {settings.phone}
+          </a>
+        )
+      }
+      {settings.whatsapp && <span>WhatsApp {settings.whatsapp}</span>}
+    </div>
+  </div>
+
+  <div class="faq-list">
+    {
+      faqs.map((faq) => (
+        <details>
+          <summary>
+            <span>{faq.question}</span>
+            {faq.category && <small>{faq.category}</small>}
+          </summary>
+          <p>{faq.answer}</p>
+        </details>
+      ))
+    }
+  </div>
+</section>

@@ -1,0 +1,13 @@
+---
+interface Props {
+  message: string;
+}
+
+const { message } = Astro.props;
+---
+
+<main class="error-state">
+  <p class="eyebrow">Data Error</p>
+  <h1>Unable to load homepage data</h1>
+  <p>{message}</p>
+</main>

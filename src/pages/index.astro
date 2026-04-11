@@ -1,11 +1,55 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import ApplicationsSection from '../components/home/ApplicationsSection.astro';
+import CaseStudiesSection from '../components/home/CaseStudiesSection.astro';
+import ErrorState from '../components/home/ErrorState.astro';
+import HeroSection from '../components/home/HeroSection.astro';
+import ProductsSection from '../components/home/ProductsSection.astro';
+import RfqSection from '../components/home/RfqSection.astro';
+import SiteHeader from '../components/home/SiteHeader.astro';
+import StatsBand from '../components/home/StatsBand.astro';
 import Layout from '../layouts/Layout.astro';
+import { fetchHomeData, type Settings } from '../lib/homeData';
+import '../styles/home.css';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const result = await fetchHomeData();
+const data = result.data;
+const loadError =
+  result.error ??
+  (!data?.settings ? 'Sanity did not return required site settings.' : '');
+
+const settings = data?.settings as Settings;
+const categories = data?.categories ?? [];
+const featuredProducts = data?.featuredProducts ?? [];
+const applications = data?.applications ?? [];
+const caseStudies = data?.caseStudies ?? [];
+const faqs = data?.faqs ?? [];
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+  title={loadError
+    ? 'Data loading error'
+    : (settings.seoTitle ?? settings.companyName)}
+  description={loadError ? loadError : settings.seoDescription}
+>
+  {
+    loadError ? (
+      <ErrorState message={loadError} />
+    ) : (
+      <>
+        <SiteHeader settings={settings} />
+
+        <main>
+          <HeroSection settings={settings} />
+          <StatsBand stats={settings.heroStats} />
+          <ProductsSection
+            categories={categories}
+            products={featuredProducts}
+          />
+          <ApplicationsSection applications={applications} />
+          <CaseStudiesSection caseStudies={caseStudies} />
+          <RfqSection settings={settings} faqs={faqs} />
+        </main>
+      </>
+    )
+  }
 </Layout>

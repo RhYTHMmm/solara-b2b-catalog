@@ -1,0 +1,25 @@
+---
+import type { Settings } from '../../lib/homeData';
+
+interface Props {
+  settings: Settings;
+}
+
+const { settings } = Astro.props;
+---
+
+<header class="site-header" aria-label="Primary navigation">
+  <a class="brand" href="/">
+    <span class="brand-mark">N</span>
+    <span>
+      <strong>{settings.companyName}</strong>
+      <small>{settings.tagline}</small>
+    </span>
+  </a>
+  <nav>
+    <a href="#products">Products</a>
+    <a href="#applications">Applications</a>
+    <a href="#cases">Cases</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>

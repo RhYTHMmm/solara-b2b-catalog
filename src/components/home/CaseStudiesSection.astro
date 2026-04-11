@@ -1,0 +1,57 @@
+---
+import { imageUrl, type CaseStudy } from '../../lib/homeData';
+
+interface Props {
+  caseStudies: CaseStudy[];
+}
+
+const { caseStudies } = Astro.props;
+---
+
+<section class="section case-section" id="cases">
+  <div class="section-heading">
+    <p class="eyebrow">Project Proof</p>
+    <h2>Shipment experience across commercial and infrastructure projects</h2>
+  </div>
+
+  <div class="case-grid">
+    {
+      caseStudies.map((caseStudy) => {
+        const caseImageUrl = imageUrl(caseStudy.image);
+
+        return (
+          <article class="case-card">
+            {caseImageUrl && (
+              <img
+                src={caseImageUrl}
+                alt={caseStudy.image?.alt ?? caseStudy.title}
+                loading="lazy"
+              />
+            )}
+            <div class="case-content">
+              <p class="product-meta">
+                {[caseStudy.clientCountry, caseStudy.industry]
+                  .filter(Boolean)
+                  .join(' / ')}
+              </p>
+              <h3>
+                <a href={`/case-studies/${caseStudy.slug}`}>
+                  {caseStudy.title}
+                </a>
+              </h3>
+              <p>{caseStudy.result}</p>
+              <div class="mini-metrics">
+                {caseStudy.metrics?.map((metric) => (
+                  <span>
+                    <strong>{metric.value}</strong>
+                    {metric.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+</section>
