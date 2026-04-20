@@ -223,7 +223,7 @@ export const fetchHomeData = async (): Promise<HomeDataResult> => {
     const payload = (await response.json()) as {
       result?: HomeData;
     };
-    const data = payload.result;
+    const data = payload?.result;
 
     if (!data) {
       const error = 'Sanity returned an empty homepage response.';
