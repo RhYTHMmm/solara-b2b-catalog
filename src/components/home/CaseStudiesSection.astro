@@ -9,18 +9,22 @@ const { caseStudies } = Astro.props;
 ---
 
 <section class="section case-section" id="cases">
-  <div class="section-heading">
+  <div class="section-heading reveal" data-reveal>
     <p class="eyebrow">Project Proof</p>
     <h2>Shipment experience across commercial and infrastructure projects</h2>
   </div>
 
   <div class="case-grid">
     {
-      caseStudies.map((caseStudy) => {
+      caseStudies.map((caseStudy, index) => {
         const caseImageUrl = imageUrl(caseStudy.image);
 
         return (
-          <article class="case-card">
+          <article
+            class="case-card reveal hover-lift"
+            data-reveal
+            style={`--reveal-delay: ${index * 110}ms;`}
+          >
             {caseImageUrl && (
               <img
                 src={caseImageUrl}

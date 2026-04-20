@@ -7,44 +7,219 @@ interface Props {
 }
 
 const { settings, faqs } = Astro.props;
+const basinFormUrl = import.meta.env.PUBLIC_BASIN_FORM_URL?.trim() ?? '';
+const basinSpamProtection =
+  import.meta.env.PUBLIC_BASIN_SPAM_PROTECTION?.trim() ?? 'none';
+const basinTurnstileSitekey =
+  import.meta.env.PUBLIC_BASIN_TURNSTILE_SITEKEY?.trim() ?? '';
+const hasBasinForm = Boolean(basinFormUrl);
 ---
 
 <section class="section rfq-section" id="contact">
-  <div class="rfq-copy">
-    <p class="eyebrow">RFQ Support</p>
-    <h2>Send your target market, quantity, and certification requirements</h2>
+  <div class="rfq-copy reveal" data-reveal>
+    <p class="eyebrow">Get Quote</p>
+    <h2>Tell us what you need and the sales team will follow up</h2>
     <p>
-      The sales team can prepare FOB pricing, datasheets, packing details,
-      available certificates, and suggested shipment schedules.
+      Share your request and we will reply with pricing details, lead time,
+      packing information, and the recommended next step for your market.
     </p>
-    <div class="contact-list">
-      {
-        settings.contactEmail && (
-          <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
-        )
-      }
-      {
-        settings.phone && (
-          <a href={`tel:${settings.phone.replaceAll(' ', '')}`}>
-            {settings.phone}
-          </a>
-        )
-      }
-      {settings.whatsapp && <span>WhatsApp {settings.whatsapp}</span>}
+    <div class="rfq-highlights">
+      <div class="rfq-highlight-card">
+        <strong>Clear commercial response</strong>
+        <p>Get pricing, lead time, packaging details, and MOQ guidance.</p>
+      </div>
+      <div class="rfq-highlight-card">
+        <strong>Fast routing</strong>
+        <p>Your inquiry goes straight to the sales inbox through Basin.</p>
+      </div>
+      <div class="rfq-highlight-card">
+        <strong>Export-ready context</strong>
+        <p>Share your target market and we can suggest the right next step.</p>
+      </div>
+    </div>
+
+    <div class="rfq-contact-card">
+      <p class="rfq-card-label">Direct Contact</p>
+      <div class="contact-list">
+        {
+          settings.contactEmail && (
+            <a href={`mailto:${settings.contactEmail}`}>
+              {settings.contactEmail}
+            </a>
+          )
+        }
+        {
+          settings.phone && (
+            <a href={`tel:${settings.phone.replaceAll(' ', '')}`}>
+              {settings.phone}
+            </a>
+          )
+        }
+        {settings.whatsapp && <span>WhatsApp {settings.whatsapp}</span>}
+      </div>
     </div>
   </div>
 
-  <div class="faq-list">
-    {
+  <div class="rfq-stack reveal" data-reveal style="--reveal-delay: 80ms;">
+    <div class="quote-panel">
+      <div class="quote-panel-head">
+        <p class="rfq-card-label">Inquiry Form</p>
+        <h3>Request pricing and product details</h3>
+        <p class="form-note form-intro">
+          Leave the essentials and the sales team will reply with pricing, lead
+          time, and the right next step.
+        </p>
+      </div>
+
+      <form
+        class="quote-form"
+        action={hasBasinForm ? basinFormUrl : undefined}
+        method="POST"
+        data-basin-form={hasBasinForm}
+        data-basin-capture-url={hasBasinForm ? 'true' : undefined}
+        data-basin-error-id={hasBasinForm ? 'quote-form-error' : undefined}
+        data-basin-spam-protection={hasBasinForm
+          ? basinSpamProtection
+          : undefined}
+        data-basin-success-action={hasBasinForm ? 'render' : undefined}
+        data-basin-success-id={hasBasinForm ? 'quote-form-success' : undefined}
+        data-basin-turnstile-sitekey={hasBasinForm &&
+        basinSpamProtection === 'turnstile' &&
+        basinTurnstileSitekey
+          ? basinTurnstileSitekey
+          : undefined}
+        data-inquiry-form
+      >
+        <input name="form_type" type="hidden" value="homepage_inquiry" />
+        <input name="source_page" type="hidden" value="homepage" />
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Name</span>
+            <input
+              type="text"
+              name="name"
+              autocomplete="name"
+              placeholder="Your full name"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span>Business Email</span>
+            <input
+              type="email"
+              name="email"
+              autocomplete="email"
+              placeholder="you@company.com"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span>Company</span>
+            <input
+              type="text"
+              name="company"
+              autocomplete="organization"
+              placeholder="Company name"
+            />
+          </label>
+
+          <label class="field">
+            <span>Phone / WhatsApp</span>
+            <input
+              type="tel"
+              name="phone"
+              autocomplete="tel"
+              inputmode="tel"
+              placeholder="+86 138 0000 0000"
+            />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Message</span>
+          <textarea
+            name="message"
+            rows="6"
+            placeholder="Tell us the product, quantity, target market, or anything the sales team should know."
+            required></textarea>
+          <small class="field-hint">
+            A short summary is enough. You can include product, quantity, or
+            destination if available.
+          </small>
+        </label>
+
+        <div class="quote-form-footer">
+          <button
+            class="button primary"
+            data-submit-label="Send Request"
+            disabled={!hasBasinForm}
+            type="submit"
+          >
+            Send Request
+          </button>
+          {
+            hasBasinForm ? (
+              <p class="form-note">
+                Submissions go directly to the sales inbox through Basin.
+              </p>
+            ) : settings.contactEmail ? (
+              <p class="form-note">
+                Configure <code>PUBLIC_BASIN_FORM_URL</code> to enable this
+                form. Sales contact: {settings.contactEmail}
+              </p>
+            ) : (
+              <p class="form-note">
+                Configure <code>PUBLIC_BASIN_FORM_URL</code> to enable this
+                form.
+              </p>
+            )
+          }
+          <p class="form-note form-meta">
+            A submission record is stored in Basin and routed to the sales
+            inbox.
+          </p>
+        </div>
+
+        <div
+          class="form-status is-success"
+          id="quote-form-success"
+          style="display: none;"
+        >
+          Thanks. Your request has been sent and the sales team will follow up
+          shortly.
+        </div>
+        <div
+          class="form-status is-error"
+          id="quote-form-error"
+          style="display: none;"
+        >
+          The request could not be submitted. Please try again or contact us
+          directly.
+        </div>
+      </form>
+    </div>
+
+    <div class="faq-list">
+      {
       faqs.map((faq) => (
-        <details>
+        <details class="faq-item">
           <summary>
             <span>{faq.question}</span>
             {faq.category && <small>{faq.category}</small>}
           </summary>
-          <p>{faq.answer}</p>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              <p>{faq.answer}</p>
+            </div>
+          </div>
         </details>
       ))
     }
   </div>
+  </div>
 </section>
+
+{hasBasinForm && <script defer src="https://js.usebasin.com/v2.10.1.min.js" />}

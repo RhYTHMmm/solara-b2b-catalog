@@ -36,7 +36,7 @@ const faqs = data?.faqs ?? [];
       <ErrorState message={loadError} />
     ) : (
       <>
-        <SiteHeader settings={settings} />
+        <SiteHeader settings={settings} products={featuredProducts} />
 
         <main>
           <HeroSection settings={settings} />
@@ -49,6 +49,183 @@ const faqs = data?.faqs ?? [];
           <CaseStudiesSection caseStudies={caseStudies} />
           <RfqSection settings={settings} faqs={faqs} />
         </main>
+
+        <script is:inline>
+          (() => {
+            const prefersReducedMotion = window.matchMedia(
+              '(prefers-reduced-motion: reduce)'
+            ).matches;
+
+            const revealElements = Array.from(
+              document.querySelectorAll('[data-reveal]')
+            );
+            const countupElements = Array.from(
+              document.querySelectorAll('[data-countup]')
+            );
+
+            const formatCountupValue = (rawValue, progress) => {
+              const match = rawValue.match(/^([^0-9]*)([0-9,.]+)(.*)$/);
+
+              if (!match) {
+                return rawValue;
+              }
+
+              const [, prefix, numeric, suffix] = match;
+              const target = Number(numeric.replaceAll(',', ''));
+
+              if (!Number.isFinite(target)) {
+                return rawValue;
+              }
+
+              const decimals = numeric.includes('.')
+                ? numeric.split('.')[1].length
+                : 0;
+              const current = target * progress;
+              const formatted = current.toLocaleString('en-US', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+              });
+
+              return `${prefix}${formatted}${suffix}`;
+            };
+
+            const runCountup = (element) => {
+              if (element.dataset.counted === 'true') {
+                return;
+              }
+
+              element.dataset.counted = 'true';
+
+              const target = element.dataset.countup ?? element.textContent ?? '';
+
+              if (prefersReducedMotion) {
+                element.textContent = target;
+                return;
+              }
+
+              const startedAt = performance.now();
+              const duration = 1100;
+
+              const tick = (now) => {
+                const progress = Math.min((now - startedAt) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                element.textContent = formatCountupValue(target, eased);
+
+                if (progress < 1) {
+                  requestAnimationFrame(tick);
+                } else {
+                  element.textContent = target;
+                }
+              };
+
+              requestAnimationFrame(tick);
+            };
+
+            if (prefersReducedMotion) {
+              revealElements.forEach((element) => {
+                element.classList.add('is-visible');
+              });
+              countupElements.forEach((element) => {
+                element.textContent = element.dataset.countup ?? element.textContent;
+              });
+            } else {
+              const revealObserver = new IntersectionObserver(
+                (entries, observer) => {
+                  entries.forEach((entry) => {
+                    if (!entry.isIntersecting) {
+                      return;
+                    }
+
+                    entry.target.classList.add('is-visible');
+
+                    entry.target
+                      .querySelectorAll('[data-countup]')
+                      .forEach((countupElement) => runCountup(countupElement));
+
+                    if (entry.target instanceof HTMLElement && entry.target.dataset.countup) {
+                      runCountup(entry.target);
+                    }
+
+                    observer.unobserve(entry.target);
+                  });
+                },
+                {
+                  threshold: 0.18,
+                  rootMargin: '0px 0px -40px 0px',
+                }
+              );
+
+              revealElements.forEach((element) => revealObserver.observe(element));
+              countupElements.forEach((element) => {
+                if (!element.closest('[data-reveal]')) {
+                  revealObserver.observe(element);
+                }
+              });
+            }
+
+            const form = document.querySelector('[data-inquiry-form]');
+
+            if (form instanceof HTMLFormElement) {
+              const submitButton = form.querySelector('button[type="submit"]');
+              const successMessage = form.querySelector('#quote-form-success');
+              const errorMessage = form.querySelector('#quote-form-error');
+
+              if (submitButton instanceof HTMLButtonElement) {
+                const idleLabel =
+                  submitButton.dataset.submitLabel ?? submitButton.textContent?.trim() ?? 'Send';
+                let resetTimer = null;
+
+                const resetFormState = () => {
+                  form.classList.remove('is-submitting');
+                  submitButton.disabled = false;
+                  submitButton.textContent = idleLabel;
+
+                  if (resetTimer) {
+                    clearTimeout(resetTimer);
+                    resetTimer = null;
+                  }
+                };
+
+                const statusObserver = new MutationObserver(() => {
+                  const statusVisible = [successMessage, errorMessage].some((element) => {
+                    if (!(element instanceof HTMLElement)) {
+                      return false;
+                    }
+
+                    return element.style.display !== 'none' && !element.hidden;
+                  });
+
+                  if (statusVisible) {
+                    resetFormState();
+                  }
+                });
+
+                [successMessage, errorMessage].forEach((element) => {
+                  if (element instanceof HTMLElement) {
+                    statusObserver.observe(element, {
+                      attributes: true,
+                      attributeFilter: ['style', 'hidden', 'class'],
+                    });
+                  }
+                });
+
+                form.addEventListener('submit', () => {
+                  form.classList.add('is-submitting');
+                  submitButton.disabled = true;
+                  submitButton.textContent = 'Sending...';
+
+                  if (resetTimer) {
+                    clearTimeout(resetTimer);
+                  }
+
+                  resetTimer = window.setTimeout(() => {
+                    resetFormState();
+                  }, 12000);
+                });
+              }
+            }
+          })();
+        </script>
       </>
     )
   }

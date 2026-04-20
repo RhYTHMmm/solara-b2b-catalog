@@ -1,11 +1,12 @@
 ---
-import type { Settings } from '../../lib/homeData';
+import type { Product, Settings } from '../../lib/homeData';
 
 interface Props {
   settings: Settings;
+  products: Product[];
 }
 
-const { settings } = Astro.props;
+const { settings, products } = Astro.props;
 ---
 
 <header class="site-header" aria-label="Primary navigation">
@@ -17,7 +18,24 @@ const { settings } = Astro.props;
     </span>
   </a>
   <nav>
-    <a href="#products">Products</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-trigger" type="button">
+        <span>Products</span>
+      </button>
+      <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-overview" href="#products">
+          Browse Product Range
+        </a>
+        {
+          products.map((product) => (
+            <a href={`/products/${product.slug}`}>
+              <strong>{product.title}</strong>
+              {product.category?.title && <small>{product.category.title}</small>}
+            </a>
+          ))
+        }
+      </div>
+    </div>
     <a href="#applications">Applications</a>
     <a href="#cases">Cases</a>
     <a href="#contact">Contact</a>

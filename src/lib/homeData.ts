@@ -1,4 +1,4 @@
-import { sanityClient } from 'sanity:client';
+import { ProxyAgent, fetch as undiciFetch } from 'undici';
 
 export type AssetImage = {
   alt?: string;
@@ -79,7 +79,10 @@ export type HomeDataResult =
   | { data: HomeData; error?: undefined }
   | { data?: undefined; error: string };
 
-const SANITY_FETCH_TIMEOUT_MS = import.meta.env.DEV ? 2500 : 8000;
+const SANITY_PROJECT_ID = '2wmp847w';
+const SANITY_DATASET = 'production';
+const SANITY_API_VERSION = '2026-04-11';
+const SANITY_FETCH_TIMEOUT_MS = 8000;
 
 const HOME_QUERY = `{
   "settings": *[_type == "siteSettings"][0] {
@@ -169,32 +172,72 @@ const HOME_QUERY = `{
   }
 }`;
 
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    const cause =
+      error.cause instanceof Error
+        ? error.cause.message
+        : error.cause
+          ? String(error.cause)
+          : '';
+
+    return cause ? `${error.message}. cause=${cause}` : error.message;
+  }
+
+  return String(error);
+};
+
+const SANITY_QUERY_URL = `https://${SANITY_PROJECT_ID}.apicdn.sanity.io/v${SANITY_API_VERSION}/data/query/${SANITY_DATASET}`;
+
+const SANITY_PROXY_URL =
+  process.env.HTTPS_PROXY ??
+  process.env.HTTP_PROXY ??
+  process.env.https_proxy ??
+  process.env.http_proxy;
+
+const SANITY_PROXY_AGENT = SANITY_PROXY_URL
+  ? new ProxyAgent(SANITY_PROXY_URL)
+  : undefined;
 
 export const fetchHomeData = async (): Promise<HomeDataResult> => {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-  const timeout = new Promise<never>((_, reject) => {
-    timeoutId = setTimeout(() => {
-      reject(new Error('Sanity homepage fetch timed out.'));
-    }, SANITY_FETCH_TIMEOUT_MS);
-  });
-
   try {
-    const data = await Promise.race([
-      sanityClient.fetch<HomeData>(HOME_QUERY),
-      timeout,
-    ]);
+    const response = await undiciFetch(SANITY_QUERY_URL, {
+      dispatcher: SANITY_PROXY_AGENT,
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: HOME_QUERY,
+      }),
+      signal: AbortSignal.timeout(SANITY_FETCH_TIMEOUT_MS),
+    });
+
+    if (!response.ok) {
+      const error = `Sanity homepage request failed with ${response.status} ${response.statusText}.`;
+      console.error(error);
+      return { error };
+    }
+
+    const payload = (await response.json()) as {
+      result?: HomeData;
+    };
+    const data = payload.result;
+
+    if (!data) {
+      const error = 'Sanity returned an empty homepage response.';
+      console.error(error);
+      return { error };
+    }
+
     return { data };
   } catch (error) {
+    const message = `Failed to load homepage data from Sanity. ${getErrorMessage(error)}`;
+    console.error(message);
     return {
-      error: `Failed to load homepage data from Sanity. ${getErrorMessage(error)}`,
+      error: message,
     };
-  } finally {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
   }
 };
 

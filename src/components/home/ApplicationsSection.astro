@@ -9,18 +9,22 @@ const { applications } = Astro.props;
 ---
 
 <section class="section applications-section" id="applications">
-  <div class="section-heading">
+  <div class="section-heading reveal" data-reveal>
     <p class="eyebrow">Applications</p>
     <h2>Built around procurement, installation, and after-sales workflows</h2>
   </div>
 
   <div class="application-grid">
     {
-      applications.map((application) => {
+      applications.map((application, index) => {
         const applicationImageUrl = imageUrl(application.image);
 
         return (
-          <article class="application-card">
+          <article
+            class="application-card reveal hover-lift"
+            data-reveal
+            style={`--reveal-delay: ${index * 90}ms;`}
+          >
             {applicationImageUrl && (
               <img
                 src={applicationImageUrl}

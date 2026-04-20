@@ -10,7 +10,7 @@ const { categories, products } = Astro.props;
 ---
 
 <section class="section intro-section" id="products">
-  <div class="section-heading">
+  <div class="section-heading reveal" data-reveal>
     <p class="eyebrow">Product Range</p>
     <h2>Export-ready solar components for repeat B2B orders</h2>
     <p>
@@ -21,8 +21,13 @@ const { categories, products } = Astro.props;
 
   <div class="category-grid">
     {
-      categories.map((category) => (
-        <a class="category-card" href={`/categories/${category.slug}`}>
+      categories.map((category, index) => (
+        <a
+          class="category-card reveal hover-lift"
+          data-reveal
+          href={`/categories/${category.slug}`}
+          style={`--reveal-delay: ${index * 70}ms;`}
+        >
           <span>{category.title}</span>
           <p>{category.summary}</p>
         </a>
@@ -33,7 +38,11 @@ const { categories, products } = Astro.props;
   <div class="product-grid">
     {
       products.map((product, index) => (
-        <article class="product-card">
+        <article
+          class="product-card reveal hover-lift"
+          data-reveal
+          style={`--reveal-delay: ${index * 90}ms;`}
+        >
           {product.imageUrl && (
             <img
               src={product.imageUrl}

@@ -10,10 +10,14 @@ const { stats } = Astro.props;
 
 {
   stats?.length ? (
-    <section class="stats-band" aria-label="Company stats">
-      {stats.map((stat) => (
-        <div class="stat">
-          <strong>{stat.value}</strong>
+    <section class="stats-band reveal-group" aria-label="Company stats">
+      {stats.map((stat, index) => (
+        <div
+          class="stat reveal"
+          data-reveal
+          style={`--reveal-delay: ${index * 80}ms;`}
+        >
+          <strong data-countup={stat.value}>{stat.value}</strong>
           <span>{stat.label}</span>
         </div>
       ))}

@@ -7,7 +7,12 @@ const { message } = Astro.props;
 ---
 
 <main class="error-state">
-  <p class="eyebrow">Data Error</p>
-  <h1>Unable to load homepage data</h1>
-  <p>{message}</p>
+  <div class="error-panel">
+    <p class="eyebrow">Data Error</p>
+    <h1>Unable to load homepage data</h1>
+    <p class="error-summary">
+      The homepage could not load data from Sanity within the expected time.
+    </p>
+    <p class="error-message">{message}</p>
+  </div>
 </main>

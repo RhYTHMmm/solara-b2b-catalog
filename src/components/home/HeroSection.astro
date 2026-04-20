@@ -10,10 +10,16 @@ const { settings } = Astro.props;
 
 <section class="hero">
   <div class="hero-content">
-    <p class="eyebrow">{settings.tagline}</p>
-    <h1>{settings.heroTitle}</h1>
-    <p class="hero-copy">{settings.heroSubtitle}</p>
-    <div class="hero-actions">
+    <p class="eyebrow hero-step" style="--hero-delay: 80ms;">
+      {settings.tagline}
+    </p>
+    <h1 class="hero-step" style="--hero-delay: 180ms;">
+      {settings.heroTitle}
+    </h1>
+    <p class="hero-copy hero-step" style="--hero-delay: 300ms;">
+      {settings.heroSubtitle}
+    </p>
+    <div class="hero-actions hero-step" style="--hero-delay: 420ms;">
       {
         settings.primaryCta && (
           <a class="button primary" href="#contact">

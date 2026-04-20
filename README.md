@@ -32,6 +32,12 @@ pnpm install
 pnpm dev
 ```
 
+如果要启用询盘表单的 Basin 提交，先创建本地环境变量文件：
+
+```bash
+cp .env.example .env
+```
+
 构建生产版本：
 
 ```bash
@@ -108,6 +114,18 @@ Sanity 集成配置位于 `astro.config.mjs`。
 - 修改样式时，优先沿用 `src/styles/home.css` 中已有的布局、间距和组件样式。
 - 项目当前未定义 `lint` 或 `test` 脚本，提交前可优先运行 `pnpm build` 做基础验证。
 - 协作规则和默认修改边界见 `doc/AGENTS.md`。
+- Sanity 数据请求当前通过 `undici` 的 `ProxyAgent` 显式读取 `HTTPS_PROXY/HTTP_PROXY`，用于终端和浏览器代理行为不一致时的网络访问。
+- 首页 Sanity 查询当前走 `POST` 到 `apicdn.sanity.io`，避免长 GROQ 查询通过 GET URL 传输时在代理链路中变得不稳定。
+
+## Environment Variables
+
+询盘表单当前使用 Basin。需要的环境变量如下：
+
+- `PUBLIC_BASIN_FORM_URL`：Basin form endpoint
+- `PUBLIC_BASIN_SPAM_PROTECTION`：可选，默认 `none`；如果使用 Basin 的 Turnstile，可设为 `turnstile`
+- `PUBLIC_BASIN_TURNSTILE_SITEKEY`：仅当 `PUBLIC_BASIN_SPAM_PROTECTION=turnstile` 时需要
+
+示例见 `.env.example`。
 
 ## Documentation
 
